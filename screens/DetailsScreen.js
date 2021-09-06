@@ -1,25 +1,45 @@
 import React, {useState} from 'react';
-import {View, Text, Button} from 'react-native';
+import {Alert, Text, TextInput, TouchableHighlight, View} from 'react-native';
 import styles from '../resourses/styles';
+import firestore from '@react-native-firebase/firestore';
 
-const DetailsScreen = (props) => {
-  console.log('second');
+let addItem = item => {
+    firestore()
+        .collection('Users')
+        .add({
+            name: item,
+            age: 30,
+        })
+        .then(() => {
+            console.log('User added!');
+        });
+};
 
-  const [count , setCount] = useState(0);
-  const [step , setStep] = useState(0);
+const DetailsScreen = () => {
+    console.log('second');
 
-  return (
-    <View style={styles.container}>
-      <Text>Hello, I have clicked the button {count} times</Text>
-        <Button
-            onPress={() => {
-                setCount(count+1);
-            }}
+    const [name, onChangeText] = useState(0);
 
-            title="Go Back"
-        />
-    </View>
-  );
+    const handleSubmit = () => {
+        addItem(name);
+        Alert.alert('Item saved successfully');
+    };
+
+    return (
+        <View style={styles.main}>
+            <Text style={styles.title}>Add Item</Text>
+            <TextInput style={styles.itemInput} onChangeText={text => onChangeText(text)}/>
+            <TouchableHighlight
+                style={styles.button}
+                underlayColor="white"
+                onPress={handleSubmit}
+            >
+                <Text style={styles.buttonText}>Add Item</Text>
+            </TouchableHighlight>
+
+
+        </View>
+    );
 };
 
 export default DetailsScreen;

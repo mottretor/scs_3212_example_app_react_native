@@ -1,38 +1,52 @@
-import React, {Component} from 'react';
-import {Button, View, Linking} from 'react-native';
+import React from 'react';
+import {Button, Text, View} from 'react-native';
 import styles from '../resourses/styles';
-import Person from '../components/Person';
+import ItemComponent from '../components/ItemComponent';
+import firestore from '@react-native-firebase/firestore';
 
-class MainScreen extends Component {
+const MainScreen = (props) => {
 
-    async backgroundFunction() {
-        const response = await fetch("https://www.googleapis.com/books/v1/volumes?q=%22Why%20leaders%20eat%20last%22");
-        const json = await response.text();
-        console.log(json);
-    }
+    const navigation = props.navigation;
+    const [itemsArray, setItemsArray] = React.useState([]);
 
-    render() {
+    React.useEffect(() => {
+        firestore()
+            .collection('Users')
+            .onSnapshot(querySnapshot => {
+                    const tempArray = [];
+                    querySnapshot.forEach(documentSnapshot => {
+                        tempArray.push(documentSnapshot.data());
+                    });
+                    setItemsArray(tempArray);
+                },
+                error => {
+                    console.log(error);
+                });
+    }, []);
 
-        const navigation = this.props.navigation;
+
+    return (
+        <View
+            style={styles.container}>
 
 
-        return (
-            <View
-                style={styles.viewgroup}>
+            {itemsArray.length > 0 ? (
+                <ItemComponent items={itemsArray}/>
+            ) : (
+                <Text>No items</Text>
+            )}
 
-                <Person name="Isuru"/>
-                <Person name="Roshan"/>
-                <Button
-                    onPress={() => {
-                       navigation.push("Details");
-                    }
-                    }
+            <Button
+                onPress={() => {
+                    navigation.push('Details');
+                }
+                }
 
-                    title="Push me"
-                />
-            </View>
-        );
-    }
-}
+                title="Push me"
+            />
+        </View>
+    );
+
+};
 
 export default MainScreen;
